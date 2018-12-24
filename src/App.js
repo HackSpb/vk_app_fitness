@@ -1,6 +1,6 @@
 import React from 'react';
 import connect from '@vkontakte/vkui-connect';
-import { Alert, View, Panel, PanelHeader, Group, InfoRow,FormLayout, FormLayoutGroup, Input,Select,Radio,Textarea,Checkbox, Link, Button,Div, Slider} from '@vkontakte/vkui';
+import { ScreenSpinner, Alert, View, Panel, PanelHeader, Group, InfoRow,FormLayout, FormLayoutGroup, Input,Select,Radio,Textarea,Checkbox, Link, Button,Div, Slider} from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
 
 
@@ -42,6 +42,7 @@ class App extends React.Component {
 					user=e.detail.data
 					this.setState({ fetchedUser: user ,
             config: window.config,
+            afterReg:0, //если только что после регистрации
             formReg: {
 						sex:user.sex,
 						first_name:user.first_name,
@@ -63,22 +64,15 @@ class App extends React.Component {
       else arr[event.target.name] = event.target.value
 
 	    this.setState({formReg: arr } )
-      console.dir(event.target)
-			console.log(this.state.formReg)
-      console.log('-->>>'+window.supervar)
 	  }
 
-		openSheet (text) {
+		openDialog (text) {
 		    this.setState({ popout:
 		      <Alert
 		        actions={[{
 		          title: 'Close',
 		          autoclose: true,
 		          style: 'destructive'
-		        }, {
-		          title: 'Cancel',
-		          autoclose: true,
-		          style: 'cancel'
 		        }]}
 		        onClose={ () => this.setState({ popout: null }) }
 		      >
@@ -90,39 +84,67 @@ class App extends React.Component {
 
 checkUser=()=>{
   fetch(this.state.config.urlPhpServer+'checkUser.php?userID='+this.state.formReg.id)
-    .then(res => res.json())
+    .then(res => res.text())
     .then(data=> {
-      console.log(data)
-      if(data.reg)
-        this.setState({registered: 1, message2user: data.message2user})
-
+      console.log('Request succeeded with response:',data)
+      let dataJSON=JSON.parse(data);
+      if(dataJSON.reg){
+        let sex=(dataJSON.sex==2 | dataJSON.sex==1)? dataJSON.sex : this.state.formReg.sex;
+        this.setState({registered: 1, message2user: dataJSON.message2user, formReg:{sex: sex, id: this.state.formReg.id, weekNumber: dataJSON.lastWeek }})
+      }
       else
         this.setState({registered: 0})
     }).catch(error => {
       console.log(error);
   });
-        console.log(this.state);
-
-
 }
 
-	ajaxSend=()=>{
-  		var data = new FormData();
-  		data.append( "json", JSON.stringify( this.state.formReg ) );
-      /* https://ftvkapp.beget.tech/saveUser.php */
-      console.log(JSON.stringify( this.state.formReg ));
-  		fetch(this.state.config.urlPhpServer+"saveUser.php", {
-        method: 'post',
-        body: data
-      })
-      .then(res => res.text())
-      .then( data=> {
-        console.log('Request succeeded with response:', data);
-    		this.openSheet(data);
-      })
-      .catch(error => {
-        console.log(error);
-    });
+	ajaxSend=(type)=>{
+      let counter = 0;
+      for (var key in this.state.formReg) {
+        counter++;
+      }
+      if (!type && ((counter<20 && this.state.formReg.sex==2) || (counter<22 && this.state.formReg.sex==1)) ||
+        type && ((counter<11 && this.state.formReg.sex==2) || (counter<13 && this.state.formReg.sex==1))
+      ) {
+            this.openDialog("Необходимо заполнить все поля!");
+      }
+      else{
+        this.setState({ popout: <ScreenSpinner /> });
+        var data = new FormData();
+        data.append( "json", JSON.stringify( this.state.formReg ) );
+        /* https://ftvkapp.beget.tech/saveUser.php */
+        console.log(JSON.stringify( this.state.formReg ));
+
+        if(type) var url = this.state.config.urlPhpServer+"saveweek.php";
+        else var url = this.state.config.urlPhpServer+"saveUser.php"
+
+        fetch(url, {
+          method: 'post',
+          body: data
+        })
+        .then(res => res.text())
+        .then( data=> {
+          this.setState({popout: null})
+          console.log('Request succeeded with response:', data);
+          let dataJSON=JSON.parse(data);
+          if(dataJSON['error']){
+            this.openDialog(dataJSON['error']);
+          }else{
+              this.setState({activePanel: 'home',registered: true, afterReg:1, message2user:"Данные записаны. Следите за комментариями от нашей команды =)"})
+              this.openDialog("Данные успешно записаны");
+          }
+
+
+
+        })
+        .catch(error => {
+          console.log(error);
+          this.setState({popout: null})
+      });
+
+      }
+
     return this;
 	}
 
@@ -136,7 +158,6 @@ checkUser=()=>{
       return null;
     }
     else{
-      console.log(Number($inp))
       return Number($inp);
     }
 	}
@@ -168,6 +189,12 @@ var ChangeSt=this.ChangeSt;
 				</Div>
         :''}
 
+        { !this.state.afterReg ?
+        <Div>
+         <Button level="commerce" onClick={() =>this.setState({activePanel: 'everyWeek'})} >Еженедельная анкета</Button>
+      </Div>
+        :''}
+
    </Panel>
 	 <Panel id="everyWeek" theme="white">
      <PanelHeader>Фитнес</PanelHeader>
@@ -176,31 +203,62 @@ var ChangeSt=this.ChangeSt;
             Еженедельный отчет
            </InfoRow>
  				</Div>
-      <Div>
-            <Button level="commerce" onClick={() =>this.setState({activePanel: 'newuser'})} >Регистрация</Button>
- 				</Div>
-
-        <FormLayout id="form3">
+          <FormLayout id="form3">
+            <Select top="Номер недели" placeholder="Не выбрана" name="weekNumber" value={$.weekNumber} onChange={ChangeSt}>
+                <option value="1">1 неделя</option>
+                 <option value="2">2 неделя</option>
+                 <option value="3">3 неделя</option>
+                 <option value="4">4 неделя</option>
+                 <option value="5">5 неделя</option>
+                 <option value="6">6 неделя</option>
+                 <option value="7">7 неделя</option>
+                 <option value="8">8 неделя</option>
+                 <option value="9">9 неделя</option>
+                 <option value="10">10 неделя</option>
+                 <option value="11">11 неделя</option>
+                 <option value="12">12 неделя</option>
+                 <option value="13">13 неделя</option>
+                 <option value="14">14 неделя</option>
+                 <option value="15">15 неделя</option>
+              </Select>
           <Input top="Калории по планке" name="caloriePlank"  value={$.caloriePlank} onChange={ChangeSt}/>
           <Input top="Средний вес за неделю" name="averageWeight" value={$.averageWeight} onChange={ChangeSt}/>
-            <Input top="Минимальный вес за неделю" name="minWeight" value={$.minWeight} onChange={ChangeSt}/>
-              <Select top="Тренировки (оцените по шкале от 0 до 5, где 0-не тренировались, 5 - активно тренировались)"
-                placeholder="Ваша оценка"  name="rateTrainings"  value={$.rateTrainings}  onChange={ChangeSt}>
+          <Input top="Минимальный вес за неделю" name="minWeight" value={$.minWeight} onChange={ChangeSt}/>
+          <Input top="Среднее кол. шагов за неделю" name="averageStep" value={$.averageStep} onChange={ChangeSt}/>
+          <Select top="Тренировки (оцените по шкале от 0 до 5, где 0-не тренировались, 5 - активно тренировались)"
+                placeholder="Ваша оценка"  name="rateTrainings"  value={Num($.rateTrainings)}  onChange={ChangeSt}>
                <option value="1">1</option>
-               <option value="2">1</option>
+               <option value="2">2</option>
                <option value="3">3</option>
                <option value="4">4</option>
                <option value="5">5</option>
              </Select>
 
-             <Select top="Питание (оцените по шкале 0-5 насколько точно вы придерживались макросов и рекомендаций)"
-                placeholder="Ваша оценка"  name="rateNutrition"  value={$.rateNutrition}  onChange={ChangeSt}>
+          <Select top="Питание (оцените по шкале 0-5 насколько точно вы придерживались макросов и рекомендаций)"
+                placeholder="Ваша оценка"  name="rateNutrition"  value={Num($.rateNutrition)}  onChange={ChangeSt}>
               <option value="1">1</option>
-              <option value="2">1</option>
+              <option value="2">2</option>
               <option value="3">3</option>
               <option value="4">4</option>
               <option value="5">5</option>
             </Select>
+            <Select top="Оцените уровень голода по шкале (от 1 до 5):"
+                  placeholder="Ваша оценка"  name="rateHunger"  value={Num($.rateHunger)}  onChange={ChangeSt}>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </Select>
+              { this.state.formReg.sex=='1' ?
+      		          <Checkbox name="menses" value="да" checked={$.menses} onChange={ChangeSt}>Были ли месячные на этой неделе? </Checkbox>
+      		 					:''}
+
+              <Checkbox name="foto" value="да" checked={$.foto} onChange={ChangeSt}>Отправляли свое фото нам? </Checkbox>
+              <Textarea top="Комментарий по неделе" placeholder="" />
+
+              <Button level="commerce" onClick={() =>this.ajaxSend(1)}  >Завершить регистрацию</Button>
+
         </FormLayout>
 
     </Panel>
@@ -236,8 +294,9 @@ var ChangeSt=this.ChangeSt;
        <Input top="Вес" type="number"  name="weight" value={Num($.weight)} onChange={ChangeSt}/>
 
 	<Input top="Вид спорта"  name="sport" value={$.sport} onChange={ChangeSt}/>
-	<Input top="Часов спорта в неделю" type="number" name="hoursport" value={Num($.hoursport)} onChange={ChangeSt} />
-	<Input top="Количество дней с тренировками" type="number" name="dayssport" value={$.dayssport} onChange={ChangeSt} />
+	<Input top="Количество дней с тренировками" name="dayssport" value={$.dayssport} onChange={ChangeSt} />
+    <Input top="Сколько минут (в среднем) длится одна тренировка" type="number" name="hoursport" value={Num($.hoursport)} onChange={ChangeSt} />
+
 
 	  <Select top="Телосложение" placeholder="Тип фигуры" name="typefig" value={$.typefig} onChange={ChangeSt} >
         <option value="Эктоморф/Худощавый">Эктоморф/Худощавый</option>
@@ -257,7 +316,7 @@ var ChangeSt=this.ChangeSt;
         <option value="ЛегкиЙ труд">Легкий ручной труд</option>
 				<option value="Тяжелый труд">Тяжелый ручной труд</option>
       </Select>
-      <Input top="Есть ли у Вас гормональные нарушения?" name="hormonalDisorder" value={$.hormonalDisorder} onChange={ChangeSt}/>
+      <Input top="Есть ли у Вас гормональные нарушения? Если нет - поставьте 'нет'" name="hormonalDisorder" value={$.hormonalDisorder} onChange={ChangeSt}/>
 
 
 	<Select top="Уровень стресса" placeholder="Выберите" name="stressLevel" value={$.stressLevel} onChange={ChangeSt}>
@@ -317,7 +376,7 @@ var ChangeSt=this.ChangeSt;
 				 </Div>
  				 <Div>
 					 <Button level="outline" onClick={() =>this.setState({activePanel: 'newuser'})} style={{ marginRight: 8 }}>Назад</Button>
-           <Button level="commerce" onClick={() =>this.ajaxSend().setState({activePanel: 'home',registered: true})}  >Завершить регистрацию</Button>
+           <Button level="commerce" onClick={() =>this.ajaxSend(0)}  >Завершить регистрацию</Button>
 				</Div>
 
 
