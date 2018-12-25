@@ -66,8 +66,6 @@ function getClient()
 
 
 
-
-
 if($_POST['json'])
 {
   $postData=json_decode($_POST['json'] , $assoc = TRUE );
@@ -90,7 +88,7 @@ if($_POST['json'])
   );
 }
 
-if(!$valuesIn or !$postData['first_name'] or !$postData['last_name'] ) die("no data =(");
+if(!$valuesIn or !$postData['id']) die("no data =(");
 
 // Get the API client and construct the service object.
 $client = getClient();
@@ -102,7 +100,7 @@ $service = new Google_Service_Drive($client);
 $optParams = array(
   'pageSize' => 1,
   'fields' => 'nextPageToken, files(id, name)',
-  'q' => 'name contains "patternSheet"'
+  'q' => 'name contains "vkid-'.$postData['id'].'"'
 );
 $results = $service->files->listFiles($optParams);
 
@@ -115,17 +113,22 @@ if (count($results->getFiles()) == 0) {
         $spreadsheetId = $file->getId();
 
         //основные данные
-        $range = 'L'.(6+$postData['weekNumber']).':W'(6+$postData['weekNumber']);
+        $range = 'L'.(6+$postData['weekNumber']).':W'.(6+$postData['weekNumber']);
         $requestBody = new Google_Service_Sheets_ValueRange([
             'range'=>$range,'majorDimension' => 'ROWS','values' => $valuesIn
         ]);
         $response = $serviceSheets->spreadsheets_values->update($spreadsheetId, $range, $requestBody,
             ['valueInputOption' => 'USER_ENTERED']);
+      if($response['updatedCells']>2){
+        $sheetLink = 'https://docs.google.com/spreadsheets/d/'.$spreadsheetId.'/edit#gid=0';
+        $responce=array('succes'=>true, 'sheetLink'=>$sheetLink) ;
+        echo json_encode($responce , JSON_UNESCAPED_UNICODE);
 
-        //планка
+      }
+       //планка
         $range = 'J'.(6+$postData['weekNumber']);
         $requestBody = new Google_Service_Sheets_ValueRange([
-            'range'=>$range,'majorDimension' => 'ROWS','values' => $postData['caloriePlank']
+            'range'=>$range,'majorDimension' => 'ROWS','values' => array(array($postData['caloriePlank']))
         ]);
         $response = $serviceSheets->spreadsheets_values->update($spreadsheetId, $range, $requestBody,
             ['valueInputOption' => 'USER_ENTERED']);

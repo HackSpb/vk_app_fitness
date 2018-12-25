@@ -64,6 +64,7 @@ class App extends React.Component {
       else arr[event.target.name] = event.target.value
 
 	    this.setState({formReg: arr } )
+			  console.log(this.state.formReg );
 	  }
 
 		openDialog (text) {
@@ -83,7 +84,7 @@ class App extends React.Component {
 		  }
 
 checkUser=()=>{
-  fetch(this.state.config.urlPhpServer+'checkUser.php?userID='+this.state.formReg.id)
+  fetch(this.state.config.urlPhpServer+'checkuser.php?userID='+this.state.formReg.id)
     .then(res => res.text())
     .then(data=> {
       console.log('Request succeeded with response:',data)
@@ -183,13 +184,13 @@ var ChangeSt=this.ChangeSt;
 				</Div>
 
         {this.state.message2user}
-        { !this.state.registered ?
+        { this.state.registered==0 ?
 		      <Div>
            <Button level="commerce" onClick={() =>this.setState({activePanel: 'newuser'})} >Регистрация</Button>
 				</Div>
         :''}
 
-        { !this.state.afterReg & this.state.registered ?
+        { !this.state.afterReg & this.state.registered==1 ?
         <Div>
          <Button level="commerce" onClick={() =>this.setState({activePanel: 'everyWeek'})} >Еженедельная анкета</Button>
       </Div>
@@ -204,7 +205,7 @@ var ChangeSt=this.ChangeSt;
            </InfoRow>
  				</Div>
           <FormLayout id="form3">
-            <Select top="Номер недели" placeholder="Не выбрана" name="weekNumber" value={$.weekNumber} onChange={ChangeSt}>
+            <Select top="Номер недели" placeholder="Не выбрана" name="weekNumber" value={Num($.weekNumber)} onChange={ChangeSt}>
                 <option value="1">1 неделя</option>
                  <option value="2">2 неделя</option>
                  <option value="3">3 неделя</option>
@@ -221,10 +222,10 @@ var ChangeSt=this.ChangeSt;
                  <option value="14">14 неделя</option>
                  <option value="15">15 неделя</option>
               </Select>
-          <Input top="Калории по планке" name="caloriePlank"  value={$.caloriePlank} onChange={ChangeSt}/>
-          <Input top="Средний вес за неделю" name="averageWeight" value={$.averageWeight} onChange={ChangeSt}/>
-          <Input top="Минимальный вес за неделю" name="minWeight" value={$.minWeight} onChange={ChangeSt}/>
-          <Input top="Среднее кол. шагов за неделю" name="averageStep" value={$.averageStep} onChange={ChangeSt}/>
+          <Input type="number" top="Калории по планке" name="caloriePlank"  value={Num($.caloriePlank)} onChange={ChangeSt}/>
+          <Input type="number" top="Средний вес за неделю" name="averageWeight" value={Num($.averageWeight)} onChange={ChangeSt}/>
+          <Input type="number" top="Минимальный вес за неделю" name="minWeight" value={Num($.minWeight)} onChange={ChangeSt}/>
+          <Input type="number" top="Среднее кол. шагов за неделю" name="averageStep" value={Num($.averageStep)} onChange={ChangeSt}/>
           <Select top="Тренировки (оцените по шкале от 0 до 5, где 0-не тренировались, 5 - активно тренировались)"
                 placeholder="Ваша оценка"  name="rateTrainings"  value={Num($.rateTrainings)}  onChange={ChangeSt}>
                <option value="1">1</option>
@@ -250,17 +251,17 @@ var ChangeSt=this.ChangeSt;
                 <option value="4">4</option>
                 <option value="5">5</option>
               </Select>
-					<Input top="Обхват шеи, см"  type="number" name="girthNeck" value={$.girthNeck} onChange={ChangeSt}  />
-					<Input top="Обхват талии, см"  type="number" name="girthWaist" value={$.girthWaist} onChange={ChangeSt} />
+					<Input top="Обхват шеи, см"  type="number" name="girthNeck" value={Num($.girthNeck)} onChange={ChangeSt}  />
+					<Input top="Обхват талии, см"  type="number" name="girthWaist" value={Num($.girthWaist)} onChange={ChangeSt} />
 					{this.state.formReg.sex=='1' ?
-				            <Input  top="Обхват бедер, см"  type="number" name="girthHits" value={$.girthHits} onChange={ChangeSt} />
+				            <Input  top="Обхват бедер, см"  type="number" name="girthHits" value={Num($.girthHits)} onChange={ChangeSt} />
 				 	:''}
           { this.state.formReg.sex=='1' ?
       		          <Checkbox name="menses" value="да" checked={$.menses} onChange={ChangeSt}>Были ли месячные на этой неделе? </Checkbox>
       		:''}
 
               <Checkbox name="foto" value="да" checked={$.foto} onChange={ChangeSt}>Отправляли свое фото нам? </Checkbox>
-              <Textarea top="Комментарий по неделе" placeholder="" name="comment"/>
+              <Textarea top="Комментарий по неделе" placeholder="" name="comment"  value={$.comment} onChange={ChangeSt}/>
 
               <Button level="commerce" onClick={() =>this.ajaxSend(1)}  >Завершить регистрацию</Button>
 
