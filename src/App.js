@@ -26,7 +26,7 @@ class App extends React.Component {
 				sex:0,
 				first_name:'',
 				last_name:'',
-        registered: true,
+        registered: -1, //-1 состояние неизвестно,0 - новый, 1- зареган
         message2user: ['','','']
 			}
 		};
@@ -189,7 +189,7 @@ var ChangeSt=this.ChangeSt;
 				</Div>
         :''}
 
-        { !this.state.afterReg ?
+        { !this.state.afterReg & this.state.registered ?
         <Div>
          <Button level="commerce" onClick={() =>this.setState({activePanel: 'everyWeek'})} >Еженедельная анкета</Button>
       </Div>
@@ -250,12 +250,17 @@ var ChangeSt=this.ChangeSt;
                 <option value="4">4</option>
                 <option value="5">5</option>
               </Select>
-              { this.state.formReg.sex=='1' ?
+					<Input top="Обхват шеи, см"  type="number" name="girthNeck" value={$.girthNeck} onChange={ChangeSt}  />
+					<Input top="Обхват талии, см"  type="number" name="girthWaist" value={$.girthWaist} onChange={ChangeSt} />
+					{this.state.formReg.sex=='1' ?
+				            <Input  top="Обхват бедер, см"  type="number" name="girthHits" value={$.girthHits} onChange={ChangeSt} />
+				 	:''}
+          { this.state.formReg.sex=='1' ?
       		          <Checkbox name="menses" value="да" checked={$.menses} onChange={ChangeSt}>Были ли месячные на этой неделе? </Checkbox>
-      		 					:''}
+      		:''}
 
               <Checkbox name="foto" value="да" checked={$.foto} onChange={ChangeSt}>Отправляли свое фото нам? </Checkbox>
-              <Textarea top="Комментарий по неделе" placeholder="" />
+              <Textarea top="Комментарий по неделе" placeholder="" name="comment"/>
 
               <Button level="commerce" onClick={() =>this.ajaxSend(1)}  >Завершить регистрацию</Button>
 

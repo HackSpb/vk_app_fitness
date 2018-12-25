@@ -1,6 +1,6 @@
 
 var config={
-urlPhpServer: "https://fitgoogle/",
+urlPhpServer: "https://localhost/",
 
 }
 
