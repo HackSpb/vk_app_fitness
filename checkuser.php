@@ -100,12 +100,12 @@ if (count($results->getFiles()) == 0) {
           $sex=$values[0][0];
 
 
-          $range = 'A1:D1'; /** данные пользователю*/
+          $range = 'A1:D3'; /** данные пользователю*/
           $response = $serviceSheets->spreadsheets_values->get($spreadsheetId, $range);
           $values = $response->getValues();
 
           $sheetLink = 'https://docs.google.com/spreadsheets/d/'.$spreadsheetId.'/edit#gid=0';
-          $responce=array('reg'=>true, 'sheetLink'=>$sheetLink, 'message2user'=>$values[0] , 'lastWeek' => $lastWeek, 'sex' => $sex) ;
+          $responce=array('reg'=>true, 'sheetLink'=>$sheetLink, 'message2user'=>$values, 'lastWeek' => $lastWeek, 'sex' => $sex) ;
           echo json_encode($responce , JSON_UNESCAPED_UNICODE);
 
 

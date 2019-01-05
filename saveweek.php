@@ -64,30 +64,28 @@ function getClient()
 
 
 
-
-
 if($_POST['json'])
 {
   $postData=json_decode($_POST['json'] , $assoc = TRUE );
   $valuesTemp=array(array_keys($postData),array_values($postData));
-
+var_dump($postData);
   $valuesIn=array(array(
-    (isset($postData['averageWeight']))? $postData['averageWeight'] :' ',
-    (isset($postData['minWeight']))? $postData['minWeight'] :' ',
-    (isset($postData['girthNeck']))? $postData['girthNeck'] :' ',
-    (isset($postData['girthWaist']))? $postData['girthWaist'] :' ',
-    (isset($postData['girthHits']))? $postData['girthHits'] :' ',
-    (isset($postData['averageStep']))? $postData['averageStep'] :' ',
-    (isset($postData['rateTrainings']))? $postData['rateTrainings'] :' ',
-    (isset($postData['rateNutrition']))? $postData['rateNutrition'] :' ',
-    (isset($postData['rateHunger']))? $postData['rateHunger'] :' ',
-    (isset($postData['menses']))? $postData['menses'] :' ',
-    (isset($postData['foto']))? $postData['foto'] :' ',
+    (isset($postData['averageWeight']))? (float)$postData['averageWeight'] :' ',
+    (isset($postData['minWeight']))? (float)$postData['minWeight'] :' ',
+    (isset($postData['girthNeck']))? (float)$postData['girthNeck'] :' ',
+    (isset($postData['girthWaist']))? (float)$postData['girthWaist'] :' ',
+    (isset($postData['girthHits']))? (float)$postData['girthHits'] :' ',
+    (isset($postData['averageStep']))? (int)$postData['averageStep'] :' ',
+    (isset($postData['rateTrainings']))? (int)$postData['rateTrainings'] :' ',
+    (isset($postData['rateNutrition']))? (int)$postData['rateNutrition'] :' ',
+    (isset($postData['rateHunger']))? (int)$postData['rateHunger'] :' ',
+    (isset($postData['menses']))? (bool)$postData['menses'] :' ',
+    (isset($postData['foto']))? (bool)$postData['foto'] :' ',
     (isset($postData['comment']))? $postData['comment'] :' '
     )
   );
 }
-
+var_dump($valuesIn);
 if(!$valuesIn or !$postData['id']) die("no data =(");
 
 // Get the API client and construct the service object.
@@ -128,7 +126,7 @@ if (count($results->getFiles()) == 0) {
        //планка
         $range = 'J'.(6+$postData['weekNumber']);
         $requestBody = new Google_Service_Sheets_ValueRange([
-            'range'=>$range,'majorDimension' => 'ROWS','values' => array(array($postData['caloriePlank']))
+            'range'=>$range,'majorDimension' => 'ROWS','values' => array(array((float)$postData['caloriePlank']))
         ]);
         $response = $serviceSheets->spreadsheets_values->update($spreadsheetId, $range, $requestBody,
             ['valueInputOption' => 'USER_ENTERED']);

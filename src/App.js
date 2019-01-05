@@ -17,11 +17,17 @@ var val = (elem) => {
 class App extends React.Component {
 	constructor(props) {
 		super(props);
+		this.reg_fields= ["sex","first_name","last_name","id","myTarget","old","height","weight","sport","dayssport","hoursport","typefig","typejob","dailyActivity","hormonalDisorder","stressLevel","sleep","fatquick","fatchild","girthNeck","girthWaist","girthHits"]
+		this.week_fields= ["sex","id","weekNumber","caloriePlank","averageWeight","minWeight","averageStep","rateTrainings","rateNutrition","rateHunger","girthNeck","girthWaist","girthHits"]
+
 
 		this.state = {
 			popout: null,
 			activePanel: 'home',
 			fetchedUser: null,
+			config: {
+				urlPhpServer: "https://localhost/"
+			},
 			formReg: {
 				sex:0,
 				first_name:'',
@@ -30,7 +36,6 @@ class App extends React.Component {
         message2user: ['','','']
 			}
 		};
-
 
 	}
 
@@ -49,9 +54,11 @@ class App extends React.Component {
 						last_name:user.last_name,
 						id:user.id
 					}});
+
               this.checkUser();
 					break;
 				default:
+
 					//console.log(e.detail.type);
 			}
 		});
@@ -64,8 +71,64 @@ class App extends React.Component {
       else arr[event.target.name] = event.target.value
 
 	    this.setState({formReg: arr } )
-			  console.log(this.state.formReg );
-	  }
+			console.log(this.state.formReg)
+			let t,i=0;
+			for (let key in this.state.formReg) {
+t+='"'+key+'",'
+i++;
+}
+console.log(t,i)
+
+	}
+
+	checkForm(type){
+				switch (type) {
+					case 0:
+						{ //без этой скобки не работает let
+							let checkArray = this.reg_fields
+							console.log(checkArray)
+							for (let key in this.state.formReg) {
+									var index = checkArray.indexOf(key);
+									if (index > -1) {
+									  checkArray.splice(index, 1);
+									}
+								}
+								if(this.state.formReg.sex==2){
+									index = checkArray.indexOf('girthHits');
+									if (index > -1) {
+										checkArray.splice(index, 1);
+									}
+								}
+								console.log(checkArray)
+								if(checkArray.length>0) return false
+								else return true
+							}
+					break;
+					case 1:
+						{ //без этой скобки не работает let
+							let checkArray = this.week_fields
+							console.log(checkArray)
+							for (let key in this.state.formReg) {
+									var index = checkArray.indexOf(key);
+									if (index > -1) {
+									  checkArray.splice(index, 1);
+									}
+								}
+								if(this.state.formReg.sex==2){
+									index = checkArray.indexOf('girthHits');
+									if (index > -1) {
+										checkArray.splice(index, 1);
+									}
+								}
+								console.log(checkArray)
+								if(checkArray.length>0) return false
+								else return true
+							}
+					break;
+					default:	return true;
+				}
+
+		}
 
 		openDialog (text) {
 		    this.setState({ popout:
@@ -84,11 +147,14 @@ class App extends React.Component {
 		  }
 
 checkUser=()=>{
+	this.setState({ popout: <ScreenSpinner /> });
   fetch(this.state.config.urlPhpServer+'checkuser.php?userID='+this.state.formReg.id)
     .then(res => res.text())
     .then(data=> {
+			this.setState({popout: null})
       console.log('Request succeeded with response:',data)
       let dataJSON=JSON.parse(data);
+			console.log(dataJSON)
       if(dataJSON.reg){
         let sex=(dataJSON.sex==2 | dataJSON.sex==1)? dataJSON.sex : this.state.formReg.sex;
         this.setState({registered: 1, message2user: dataJSON.message2user, formReg:{sex: sex, id: this.state.formReg.id, weekNumber: dataJSON.lastWeek }})
@@ -96,6 +162,7 @@ checkUser=()=>{
       else
         this.setState({registered: 0})
     }).catch(error => {
+			this.openDialog ("ошибка связи с сервером")
       console.log(error);
   });
 }
@@ -105,11 +172,12 @@ checkUser=()=>{
       for (var key in this.state.formReg) {
         counter++;
       }
-      if (!type && ((counter<20 && this.state.formReg.sex==2) || (counter<22 && this.state.formReg.sex==1)) ||
+      /*if (!type && ((counter<20 && this.state.formReg.sex==2) || (counter<22 && this.state.formReg.sex==1)) ||
         type && ((counter<11 && this.state.formReg.sex==2) || (counter<13 && this.state.formReg.sex==1))
       ) {
-            this.openDialog("Необходимо заполнить все поля!");
-      }
+            this.openDialog("Необходимо заполнить все поля");
+      }*/
+			if(!this.checkForm(type)){this.openDialog("Необходимо заполнить все поля!");}
       else{
         this.setState({ popout: <ScreenSpinner /> });
         var data = new FormData();
@@ -140,6 +208,7 @@ checkUser=()=>{
 
         })
         .catch(error => {
+					this.openDialog ("ошибка связи с сервером")
           console.log(error);
           this.setState({popout: null})
       });
@@ -182,8 +251,41 @@ var ChangeSt=this.ChangeSt;
            Приветствуем тебя в нашей системе
           </InfoRow>
 				</Div>
+				{ this.state.message2user ?
+				<Div>
+					<Div>
+						<InfoRow title="Актуальная планка:">
+	           {this.state.message2user[0][1]}
+	          </InfoRow>
+					</Div>
+					<Div>
+						<InfoRow title="Цель: ">
+							 {this.state.message2user[2][1]}
+						</InfoRow>
+					</Div>
+					<Div>
+						<InfoRow title="Рекомендация по планке: ">
+							 {this.state.message2user[0][3]}
+						</InfoRow>
+					</Div>
+					<Div>
+						<InfoRow title="Планка по шагам: ">
+							 {this.state.message2user[2][3]}
+						</InfoRow>
+					</Div>
+					<Div>
+						<InfoRow title="Комментарий:">
+							 {this.state.message2user[0][2]}
+						</InfoRow>
+					</Div>
+					<Div>
+						<InfoRow title="Дата проверки:">
+							 {this.state.message2user[2][2]}
+						</InfoRow>
+					</Div>
+				</Div>
+				:''}
 
-        {this.state.message2user}
         { this.state.registered==0 ?
 		      <Div>
            <Button level="commerce" onClick={() =>this.setState({activePanel: 'newuser'})} >Регистрация</Button>
@@ -221,6 +323,7 @@ var ChangeSt=this.ChangeSt;
                  <option value="13">13 неделя</option>
                  <option value="14">14 неделя</option>
                  <option value="15">15 неделя</option>
+								 <option value="16">16 неделя</option>
               </Select>
           <Input type="number" top="Калории по планке" name="caloriePlank"  value={Num($.caloriePlank)} onChange={ChangeSt}/>
           <Input type="number" top="Средний вес за неделю" name="averageWeight" value={Num($.averageWeight)} onChange={ChangeSt}/>
@@ -263,7 +366,7 @@ var ChangeSt=this.ChangeSt;
               <Checkbox name="foto" value="да" checked={$.foto} onChange={ChangeSt}>Отправляли свое фото нам? </Checkbox>
               <Textarea top="Комментарий по неделе" placeholder="" name="comment"  value={$.comment} onChange={ChangeSt}/>
 
-              <Button level="commerce" onClick={() =>this.ajaxSend(1)}  >Завершить регистрацию</Button>
+              <Button level="commerce" onClick={() =>this.ajaxSend(1)}  >Отправить данные</Button>
 
         </FormLayout>
 
@@ -362,30 +465,39 @@ var ChangeSt=this.ChangeSt;
 					<InfoRow title="">
 				Измерьте свои характеристики согласно инструкциям на картинках
 				</InfoRow>
+					<FormLayout id="form2">
+					<InfoRow title="">
+					1) Измерь сантиметром окружность шеи в <b>самом узком</b> месте:
+					</InfoRow>
          <div style={{'text-align': "center"}}>
-           <br /><img src='https://moiglaza.com/wp-content/uploads/2017/03/lehglau-300x210.jpg' /><br />
+           <br /><img src={this.state.config.urlPhpServer+'img/w_neck.jpg'} width="60%" /><br /><br />
          </div>
-         <Input top="Обхват шеи, см"  type="number" name="girthNeck" value={$.girthNeck} onChange={ChangeSt}  />
-
+         <Input top="Обхват шеи, см."  type="number" name="girthNeck" value={$.girthNeck} onChange={ChangeSt}  />
+					<InfoRow title="">
+				 	2) Измерь сантиметром окружность талии - для женщин в <b>самом узком</b> месте, для мужчин <b>на уровне пупка</b>:
+				 	</InfoRow>
          <div style={{'text-align': "center"}}>
-           <br /><img src='https://moiglaza.com/wp-content/uploads/2017/03/lehglau-300x210.jpg' /><br />
+           <br /><img src={this.state.config.urlPhpServer+'img/w_waist.jpg'} width="60%"  /><br /><br />
          </div>
-         <Input top="Обхват талии, см"  type="number" name="girthWaist" value={$.girthWaist} onChange={ChangeSt} />
+         <Input top="Обхват талии, см."  type="number" name="girthWaist" value={$.girthWaist} onChange={ChangeSt} />
 	 { this.state.formReg.sex=='1' ?
+		 <div>
+			 <InfoRow title="">
+			 3) Измерь сантиметром окружность бедер в <b>самом широком</b> месте
+			 </InfoRow>
          <div style={{'text-align': "center"}} >
-           <br /><img src='https://moiglaza.com/wp-content/uploads/2017/03/lehglau-300x210.jpg' /><br />
+           <br /><img src={this.state.config.urlPhpServer+'img/w_hips.jpg'} width="60%"  /><br /><br />
 
-
+				 	</div>
            <Input  top="Обхват бедер, см"  type="number" name="girthHits" value={$.girthHits} onChange={ChangeSt} />
 				 	</div>
 					:''}
-				 </Div>
  				 <Div>
 					 <Button level="outline" onClick={() =>this.setState({activePanel: 'newuser'})} style={{ marginRight: 8 }}>Назад</Button>
            <Button level="commerce" onClick={() =>this.ajaxSend(0)}  >Завершить регистрацию</Button>
 				</Div>
-
-
+			</FormLayout>
+		</Div>
    </Panel>
 </View>
 

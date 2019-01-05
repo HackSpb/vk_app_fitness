@@ -75,19 +75,19 @@ if($_POST['json'])
 
   $valuesIn=array(array(
     (isset($postData['myTarget']))? $postData['myTarget'] :' ',
-    (isset($postData['sex']))? $postData['sex'] :' ',
-    (isset($postData['old']))? $postData['old'] :' ',
-    (isset($postData['height']))? $postData['height'] :' ',
-    (isset($postData['weight']))? $postData['weight'] :' ',
+    (isset($postData['sex']))? (int)$postData['sex'] :' ',
+    (isset($postData['old']))? (int)$postData['old'] :' ',
+    (isset($postData['height']))? (float)$postData['height'] :' ',
+    (isset($postData['weight']))? (float)$postData['weight'] :' ',
     (isset($postData['typejob']))? $postData['typejob'] :' ',
     (isset($postData['dailyActivity']))? $postData['dailyActivity'] :' ',
     (isset($postData['hormonalDisorder']))? $postData['hormonalDisorder'] :' ',
     (isset($postData['typefig']))? $postData['typefig'] :' ',
     (isset($postData['fatquick']))? $postData['fatquick'] :' ',
-    (isset($postData['sleep']))? $postData['sleep'] :' ',
+    (isset($postData['sleep']))? (float)$postData['sleep'] :' ',
     (isset($postData['sport']))? $postData['sport'] :' ',
-    (isset($postData['hoursport']))? $postData['hoursport'] :' ',
     (isset($postData['dayssport']))? $postData['dayssport'] :' ',
+    (isset($postData['hoursport']))? (float)$postData['hoursport'] :' ',
     (isset($postData['stressLevel']))? $postData['stressLevel'] :' ',
     (isset($postData['fatchild']))? $postData['fatchild'] :' '
 
