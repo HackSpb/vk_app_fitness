@@ -83,7 +83,7 @@ if (count($results->getFiles()) == 0) {
 
 
 
-          $range = 'N6:N'. (6+15); /** диапазон измерений шеи*/
+          $range = 'N6:N'. (6+16); /** диапазон измерений шеи*/
           $response = $serviceSheets->spreadsheets_values->get($spreadsheetId, $range);
           $values = $response->getValues();
 

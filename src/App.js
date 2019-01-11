@@ -4,8 +4,6 @@ import { ScreenSpinner, Alert, View, Panel, PanelHeader, Group, InfoRow,FormLayo
 import '@vkontakte/vkui/dist/vkui.css';
 
 
-require('./test.txt');
-
 var user = {first_name: "",last_name:"", sex:0, id:0};
 
 
@@ -14,12 +12,27 @@ var val = (elem) => {
 		return '1';
 	}
 
+/*
+class radio extends React.Component {
+	constructor(props) {
+	      super(props);
+	      this.textInput = React.createRef();
+	    }
+	    render() {
+	      return (
+						<Radio value="Ниже среднего"   name="dailyActivity">!!!!!!!!!!!!!!!</Radio>
+				);
+}
+}*/
+
+
 class App extends React.Component {
 	constructor(props) {
 		super(props);
 		this.reg_fields= ["sex","first_name","last_name","id","myTarget","old","height","weight","sport","dayssport","hoursport","typefig","typejob","dailyActivity","hormonalDisorder","stressLevel","sleep","fatquick","fatchild","girthNeck","girthWaist","girthHits"]
 		this.week_fields= ["sex","id","weekNumber","caloriePlank","averageWeight","minWeight","averageStep","rateTrainings","rateNutrition","rateHunger","girthNeck","girthWaist","girthHits"]
 
+  	this.textInput = React.createRef();
 
 		this.state = {
 			popout: null,
@@ -30,8 +43,8 @@ class App extends React.Component {
 			},
 			formReg: {
 				sex:0,
-				first_name:'',
-				last_name:'',
+				first_name:' ',
+				last_name:' ',
         registered: -1, //-1 состояние неизвестно,0 - новый, 1- зареган
         message2user: ['','','']
 			}
@@ -68,17 +81,19 @@ class App extends React.Component {
 	ChangeSt=(event)=> {
 			let arr =this.state.formReg
       if(event.target.type=="checkbox") arr[event.target.name] = event.target.checked
-      else arr[event.target.name] = event.target.value
+	    else arr[event.target.name] = event.target.value
+
+			if(event.target.type=="radio") event.target.checked = 'checked'
 
 	    this.setState({formReg: arr } )
-			console.log(this.state.formReg)
+			console.log(this.state.formReg,event.target.type)
+//для показа элементов
 			let t,i=0;
 			for (let key in this.state.formReg) {
 t+='"'+key+'",'
 i++;
 }
 console.log(t,i)
-
 	}
 
 	checkForm(type){
@@ -208,9 +223,10 @@ checkUser=()=>{
 
         })
         .catch(error => {
+					this.setState({popout: null})
 					this.openDialog ("ошибка связи с сервером")
           console.log(error);
-          this.setState({popout: null})
+
       });
 
       }
@@ -240,7 +256,8 @@ checkUser=()=>{
 let $=this.state.formReg;
 var Num=this.Num;
 var ChangeSt=this.ChangeSt;
-
+var ifChecked=this.ifChecked;
+var v,n; // для значений и имен инпутов и радио
 		return (
 
 <View activePanel={this.state.activePanel} popout={this.state.popout}>
@@ -255,17 +272,22 @@ var ChangeSt=this.ChangeSt;
 				<Div>
 					<Div>
 						<InfoRow title="Актуальная планка:">
-	           {this.state.message2user[0][1]}
+	           <pre>{this.state.message2user[0][1]}
+							 </pre>
 	          </InfoRow>
 					</Div>
 					<Div>
 						<InfoRow title="Цель: ">
+							<pre>
 							 {this.state.message2user[2][1]}
+						 </pre>
 						</InfoRow>
 					</Div>
 					<Div>
 						<InfoRow title="Рекомендация по планке: ">
+							<pre>
 							 {this.state.message2user[0][3]}
+						 </pre>
 						</InfoRow>
 					</Div>
 					<Div>
@@ -275,7 +297,9 @@ var ChangeSt=this.ChangeSt;
 					</Div>
 					<Div>
 						<InfoRow title="Комментарий:">
+							<pre>
 							 {this.state.message2user[0][2]}
+						 </pre>
 						</InfoRow>
 					</Div>
 					<Div>
@@ -286,7 +310,7 @@ var ChangeSt=this.ChangeSt;
 				</Div>
 				:''}
 
-        { this.state.registered==0 ?
+        { this.state.registered==0 ||1 ?
 		      <Div>
            <Button level="commerce" onClick={() =>this.setState({activePanel: 'newuser'})} >Регистрация</Button>
 				</Div>
@@ -325,9 +349,9 @@ var ChangeSt=this.ChangeSt;
                  <option value="15">15 неделя</option>
 								 <option value="16">16 неделя</option>
               </Select>
-          <Input type="number" top="Калории по планке" name="caloriePlank"  value={Num($.caloriePlank)} onChange={ChangeSt}/>
-          <Input type="number" top="Средний вес за неделю" name="averageWeight" value={Num($.averageWeight)} onChange={ChangeSt}/>
-          <Input type="number" top="Минимальный вес за неделю" name="minWeight" value={Num($.minWeight)} onChange={ChangeSt}/>
+          <Input type="number" top="Калории по планке" name="caloriePlank"  value={Num($.caloriePlank)} step="any" onChange={ChangeSt}/>
+          <Input type="number" top="Средний вес за неделю" name="averageWeight" value={Num($.averageWeight)} step="any" onChange={ChangeSt}/>
+          <Input type="number" top="Минимальный вес за неделю" name="minWeight" value={Num($.minWeight)} step="any" onChange={ChangeSt}/>
           <Input type="number" top="Среднее кол. шагов за неделю" name="averageStep" value={Num($.averageStep)} onChange={ChangeSt}/>
           <Select top="Тренировки (оцените по шкале от 0 до 5, где 0-не тренировались, 5 - активно тренировались)"
                 placeholder="Ваша оценка"  name="rateTrainings"  value={Num($.rateTrainings)}  onChange={ChangeSt}>
@@ -354,13 +378,13 @@ var ChangeSt=this.ChangeSt;
                 <option value="4">4</option>
                 <option value="5">5</option>
               </Select>
-					<Input top="Обхват шеи, см"  type="number" name="girthNeck" value={Num($.girthNeck)} onChange={ChangeSt}  />
-					<Input top="Обхват талии, см"  type="number" name="girthWaist" value={Num($.girthWaist)} onChange={ChangeSt} />
+					<Input top="Обхват шеи, см"  type="number" name="girthNeck" value={Num($.girthNeck)} step="any" onChange={ChangeSt}  />
+					<Input top="Обхват талии, см"  type="number" name="girthWaist" value={Num($.girthWaist)} step="any" onChange={ChangeSt} />
 					{this.state.formReg.sex=='1' ?
-				            <Input  top="Обхват бедер, см"  type="number" name="girthHits" value={Num($.girthHits)} onChange={ChangeSt} />
+				            <Input  top="Обхват бедер, см"  type="number" name="girthHits" value={Num($.girthHits)} step="any" onChange={ChangeSt} />
 				 	:''}
           { this.state.formReg.sex=='1' ?
-      		          <Checkbox name="menses" value="да" checked={$.menses} onChange={ChangeSt}>Были ли месячные на этой неделе? </Checkbox>
+      		          <Checkbox name="menses" value="да" checked={$.menses} onChange={ChangeSt} step="any">Были ли месячные на этой неделе? </Checkbox>
       		:''}
 
               <Checkbox name="foto" value="да" checked={$.foto} onChange={ChangeSt}>Отправляли свое фото нам? </Checkbox>
@@ -399,12 +423,12 @@ var ChangeSt=this.ChangeSt;
       </Select>
        <Slider step={1} min={16} max={70} top={"Полных лет " + (($.old)?$.old:"") } name="old" value={$.old}  onChange={val =>{$['old']=val;this.setState({formReg: $})}} />
 
-       <Input top="Рост" type="number" name="height" value={Num($.height)} onChange={ChangeSt}  />
-       <Input top="Вес" type="number"  name="weight" value={Num($.weight)} onChange={ChangeSt}/>
+       <Input top="Рост" type="number" name="height" value={Num($.height)} onChange={ChangeSt} step="any" />
+       <Input top="Вес" type="number"  name="weight" value={Num($.weight)}  step="any" onChange={ChangeSt}/>
 
-	<Input top="Вид спорта"  name="sport" value={$.sport} onChange={ChangeSt}/>
-	<Input top="Количество дней с тренировками" name="dayssport" value={$.dayssport} onChange={ChangeSt} />
-    <Input top="Сколько минут (в среднем) длится одна тренировка" type="number" name="hoursport" value={Num($.hoursport)} onChange={ChangeSt} />
+	<Input top="Вид спорта (напр. кроссфит, футбол, танцы и т.д.)" name="sport"   value={$.sport} onChange={ChangeSt}/>
+	<Input top="Количество дней с тренировками (в неделю)" name="dayssport" value={$.dayssport} onChange={ChangeSt} />
+	  <Input top="Сколько минут (в среднем) длится одна тренировка" type="number" name="hoursport" value={Num($.hoursport)} onChange={ChangeSt} />
 
 
 	  <Select top="Телосложение" placeholder="Тип фигуры" name="typefig" value={$.typefig} onChange={ChangeSt} >
@@ -412,29 +436,56 @@ var ChangeSt=this.ChangeSt;
         <option value="Мышечный/средний">Мышечный/средний</option>
         <option value="Эндоморф/полный">Эндоморф/полный</option>
       </Select>
-      <Select top="Характер работы" placeholder="Выберите" name="typejob" value={$.typejob} onChange={ChangeSt}>
+		<Input top="Есть ли у Вас гормональные нарушения? Если нет - поставьте 'нет'" name="hormonalDisorder" value={$.hormonalDisorder} onChange={ChangeSt}/>
+
+
+
+      	{/*<Select top="" placeholder="Выберите" name="typejob" value={$.typejob} onChange={ChangeSt}>
         <option value="офис">Малоподвижная, сидячая, офис</option>
         <option value="легкая активность">Лёгкая активность/разъездная работа/весь день на ногах </option>
         <option value="Активный">Активный - лёгкий физический труд - повара/парикмахеры</option>
         <option value="Тяжелый труд">Тяжелый физический труд/строительные работы/грузчик</option>
       </Select>
-			<Select top="Повседневная активность" placeholder="Выберите" name="dailyActivity" value={$.dailyActivity} onChange={ChangeSt}>
+		<Select top="Повседневная активность" placeholder="Выберите" name="dailyActivity" value={$.dailyActivity} onChange={ChangeSt}>
         <option value="Минимальная">Минимальная (сидячая работа/ноль движения)</option>
         <option value="Ниже среднего">Ниже среднего (прогулки, ежедневный поход за покупками)</option>
         <option value="На ногах">На ногах большую часть дня</option>
         <option value="ЛегкиЙ труд">Легкий ручной труд</option>
 				<option value="Тяжелый труд">Тяжелый ручной труд</option>
-      </Select>
-      <Input top="Есть ли у Вас гормональные нарушения? Если нет - поставьте 'нет'" name="hormonalDisorder" value={$.hormonalDisorder} onChange={ChangeSt}/>
-
-
+      </Select>*/}
+			<Div>
+				<InfoRow title="Характер работы:" >
+					<Radio value={v="офис"} 							name={n="typejob"} checked={$[n] === v} onChange={ChangeSt}>Малоподвижная, сидячая, офис</Radio>
+					<Radio value={v="легкая активность"} 	name={n="typejob"} checked={$[n] === v} onChange={ChangeSt}>Лёгкая активность/разъездная работа/весь день на ногах</Radio>
+					<Radio value={v="активный"} 					name={n="typejob"} checked={$[n] === v} onChange={ChangeSt}>Активный - лёгкий физический труд - повара/парикмахеры</Radio>
+					<Radio value={v="тяжелый труд"} 			name={n="typejob"} checked={$[n] === v} onChange={ChangeSt}>Тяжелый физический труд/строительные работы/грузчик</Radio>
+				</InfoRow>
+			</Div>
+			<Div>
+				<InfoRow title="Повседневная активность:" >
+					<Radio value={v="минимальная"} 		name={n="dailyActivity"} checked={$[n] === v} onChange={ChangeSt}>Минимальная (сидячая работа/ноль движения)</Radio>
+					<Radio value={v="ниже среднего"} 	name={n="dailyActivity"} checked={$[n] === v} onChange={ChangeSt}>Ниже среднего (прогулки, ежедневный поход за покупками)</Radio>
+					<Radio value={v="на ногах"} 			name={n="dailyActivity"} checked={$[n] === v} onChange={ChangeSt}>На ногах большую часть дня</Radio>
+					<Radio value={v="легкиЙ труд"} 		name={n="dailyActivity"} checked={$[n] === v} onChange={ChangeSt}>Легкий ручной труд</Radio>
+					<Radio value={v="тяжелый труд"} 	name={n="dailyActivity"} checked={$[n] === v} onChange={ChangeSt}>Тяжелый ручной труд</Radio>
+				</InfoRow>
+			</Div>
+			<Div>
+				<InfoRow title="Уровень стресса:" >
+					<Radio value={v="без стресса"} 	name={n="stressLevel"} checked={$[n] === v} onChange={ChangeSt}>Без стресса (только переживаю очень во время просмотра новостей по телевизору)</Radio>
+					<Radio value={v="по случаю"} 		name={n="stressLevel"} checked={$[n] === v} onChange={ChangeSt}>По случаю (например студент во время сессии)</Radio>
+					<Radio value={v="средний"} 			name={n="stressLevel"} checked={$[n] === v} onChange={ChangeSt}>Средний (полноценная работа с дедлайнами и контактами с другими людьми)</Radio>
+					<Radio value={v="высокий"} 			name={n="stressLevel"} checked={$[n] === v} onChange={ChangeSt}>Высокий (руководящая работа/жёсткий график/высокая ответственность)</Radio>
+				</InfoRow>
+			</Div>
+			{/*
 	<Select top="Уровень стресса" placeholder="Выберите" name="stressLevel" value={$.stressLevel} onChange={ChangeSt}>
-				<option value="Без стресса">Без стресса (только переживаю очень во время просмотра новостей по телевизору)</option>
-				<option value="По случаю">По случаю (например студент во время сессии)</option>
-				<option value="Средний">Средний (полноценная работа с дедлайнами и контактами с другими людьми)</option>
-				<option value="Высокий">Высокий (руководящая работа/жёсткий график/высокая ответственность)</option>
+				<option value="без стресса">Без стресса (только переживаю очень во время просмотра новостей по телевизору)</option>
+				<option value="по случаю">По случаю (например студент во время сессии)</option>
+				<option value="средний">Средний (полноценная работа с дедлайнами и контактами с другими людьми)</option>
+				<option value="высокий">Высокий (руководящая работа/жёсткий график/высокая ответственность)</option>
 			</Select>
-
+*/}
 		<Slider step={0.5} min={4} max={14} top={"Количество часов сна в среднем " + (($.sleep)?$.sleep:"") } value={Num($.sleep)} onChange={val =>{$['sleep']=val;this.setState({formReg: $})}} />
 
 
@@ -469,27 +520,36 @@ var ChangeSt=this.ChangeSt;
 					<InfoRow title="">
 					1) Измерь сантиметром окружность шеи в <b>самом узком</b> месте:
 					</InfoRow>
-         <div style={{'text-align': "center"}}>
-           <br /><img src={this.state.config.urlPhpServer+'img/w_neck.jpg'} width="60%" /><br /><br />
+         <div style={{'textAlign': "center"}}>
+           <br />
+ { this.state.formReg.sex=='1' ?
+				 	<img src={this.state.config.urlPhpServer+'img/w_neck.jpg'} width="60%" />
+					:	<img src={this.state.config.urlPhpServer+'img/m_neck.jpg'} width="60%" />
+				}<br /><br />
          </div>
-         <Input top="Обхват шеи, см."  type="number" name="girthNeck" value={$.girthNeck} onChange={ChangeSt}  />
+         <Input top="Обхват шеи, см."  type="number" name="girthNeck" value={Num($.girthNeck)} step="any" onChange={ChangeSt}  />
 					<InfoRow title="">
 				 	2) Измерь сантиметром окружность талии - для женщин в <b>самом узком</b> месте, для мужчин <b>на уровне пупка</b>:
 				 	</InfoRow>
-         <div style={{'text-align': "center"}}>
-           <br /><img src={this.state.config.urlPhpServer+'img/w_waist.jpg'} width="60%"  /><br /><br />
+         <div style={{'textAlign': "center"}}>
+           <br />
+					 { this.state.formReg.sex=='1' ?
+						 <img src={this.state.config.urlPhpServer+'img/w_waist.jpg'} style={{'maxWidth':"60%"}}  />
+						 : <img src={this.state.config.urlPhpServer+'img/m_waist.jpg'} style={{'maxWidth':"60%", 'maxHeight':'400px'}}  />
+						 }
+				 <br /><br />
          </div>
-         <Input top="Обхват талии, см."  type="number" name="girthWaist" value={$.girthWaist} onChange={ChangeSt} />
+         <Input top="Обхват талии, см."  type="number" name="girthWaist" value={Num($.girthWaist)} step="any" onChange={ChangeSt} />
 	 { this.state.formReg.sex=='1' ?
 		 <div>
 			 <InfoRow title="">
 			 3) Измерь сантиметром окружность бедер в <b>самом широком</b> месте
 			 </InfoRow>
-         <div style={{'text-align': "center"}} >
+         <div style={{'textAlign': "center"}} >
            <br /><img src={this.state.config.urlPhpServer+'img/w_hips.jpg'} width="60%"  /><br /><br />
 
 				 	</div>
-           <Input  top="Обхват бедер, см"  type="number" name="girthHits" value={$.girthHits} onChange={ChangeSt} />
+           <Input  top="Обхват бедер, см"  type="number" name="girthHits" value={Num($.girthHits)} step="any" onChange={ChangeSt} />
 				 	</div>
 					:''}
  				 <Div>

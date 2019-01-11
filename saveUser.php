@@ -75,7 +75,7 @@ if($_POST['json'])
 
   $valuesIn=array(array(
     (isset($postData['myTarget']))? $postData['myTarget'] :' ',
-    (isset($postData['sex']))? (int)$postData['sex'] :' ',
+    ($postData['sex']==1)? 'жен' : 'муж',
     (isset($postData['old']))? (int)$postData['old'] :' ',
     (isset($postData['height']))? (float)$postData['height'] :' ',
     (isset($postData['weight']))? (float)$postData['weight'] :' ',
@@ -86,7 +86,7 @@ if($_POST['json'])
     (isset($postData['fatquick']))? $postData['fatquick'] :' ',
     (isset($postData['sleep']))? (float)$postData['sleep'] :' ',
     (isset($postData['sport']))? $postData['sport'] :' ',
-    (isset($postData['dayssport']))? $postData['dayssport'] :' ',
+    (isset($postData['dayssport']))? (int)$postData['dayssport'] :' ',
     (isset($postData['hoursport']))? (float)$postData['hoursport'] :' ',
     (isset($postData['stressLevel']))? $postData['stressLevel'] :' ',
     (isset($postData['fatchild']))? $postData['fatchild'] :' '

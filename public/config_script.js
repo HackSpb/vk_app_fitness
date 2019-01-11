@@ -1,7 +1,7 @@
 
 var config={
 urlPhpServer: "https://localhost/",
-
+///appfizikl.ru
 }
 
 

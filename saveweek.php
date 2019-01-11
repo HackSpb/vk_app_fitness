@@ -68,7 +68,7 @@ if($_POST['json'])
 {
   $postData=json_decode($_POST['json'] , $assoc = TRUE );
   $valuesTemp=array(array_keys($postData),array_values($postData));
-var_dump($postData);
+
   $valuesIn=array(array(
     (isset($postData['averageWeight']))? (float)$postData['averageWeight'] :' ',
     (isset($postData['minWeight']))? (float)$postData['minWeight'] :' ',
@@ -85,7 +85,7 @@ var_dump($postData);
     )
   );
 }
-var_dump($valuesIn);
+
 if(!$valuesIn or !$postData['id']) die("no data =(");
 
 // Get the API client and construct the service object.
