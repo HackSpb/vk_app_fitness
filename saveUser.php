@@ -118,7 +118,7 @@ if (count($results->getFiles()) == 0) {
     foreach ($results->getFiles() as $file) {
         //printf("%s (%s)\n", $file->getName(), $file->getId());
         $copiedFile = new Google_Service_Drive_DriveFile();
-        $copiedFile->setName($postData['last_name'].' '.$postData['first_name']." vkid-".$postData['id']." ".time());
+        $copiedFile->setName($postData['last_name'].' '.$postData['first_name']." vkid-".$postData['id'];
 
         try {
              $newfile=$service->files->copy($file->getId(),$copiedFile);

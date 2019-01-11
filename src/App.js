@@ -12,24 +12,10 @@ var val = (elem) => {
 		return '1';
 	}
 
-/*
-class radio extends React.Component {
-	constructor(props) {
-	      super(props);
-	      this.textInput = React.createRef();
-	    }
-	    render() {
-	      return (
-						<Radio value="Ниже среднего"   name="dailyActivity">!!!!!!!!!!!!!!!</Radio>
-				);
-}
-}*/
-
-
 class App extends React.Component {
 	constructor(props) {
 		super(props);
-		this.reg_fields= ["sex","first_name","last_name","id","myTarget","old","height","weight","sport","dayssport","hoursport","typefig","typejob","dailyActivity","hormonalDisorder","stressLevel","sleep","fatquick","fatchild","girthNeck","girthWaist","girthHits"]
+		this.reg_fields= ["sex","first_name","last_name","id","myTarget","old","height","weight","sport","dayssport","hoursport","typefig","typejob","dailyActivity","hormonalDisorder","stressLevel","sleep","girthNeck","girthWaist","girthHits"]
 		this.week_fields= ["sex","id","weekNumber","caloriePlank","averageWeight","minWeight","averageStep","rateTrainings","rateNutrition","rateHunger","girthNeck","girthWaist","girthHits"]
 
   	this.textInput = React.createRef();
@@ -310,7 +296,7 @@ var v,n; // для значений и имен инпутов и радио
 				</Div>
 				:''}
 
-        { this.state.registered==0 ||1 ?
+        { this.state.registered==0 ?
 		      <Div>
            <Button level="commerce" onClick={() =>this.setState({activePanel: 'newuser'})} >Регистрация</Button>
 				</Div>
