@@ -148,8 +148,9 @@ if (count($results->getFiles()) == 0) {
 
 /// измерения
           $range = 'N6:P6';
+          $girthHits=( isset($postData['girthHits']))? (float)$postData['girthHits'] : '';
             $requestBody = new Google_Service_Sheets_ValueRange([
-              'range'=>$range,'majorDimension' => 'ROWS','values' => array(array($postData['girthNeck'],$postData['girthWaist'],$postData['girthHits']))
+              'range'=>$range,'majorDimension' => 'ROWS','values' => array(array((float)$postData['girthNeck'],(float)$postData['girthWaist'], $girthHits))
             ]);
           $response = $serviceSheets->spreadsheets_values->update($spreadsheetId, $range, $requestBody,
               ['valueInputOption' => 'USER_ENTERED']);

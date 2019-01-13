@@ -74,7 +74,7 @@ if($_POST['json'])
     (isset($postData['minWeight']))? (float)$postData['minWeight'] :' ',
     (isset($postData['girthNeck']))? (float)$postData['girthNeck'] :' ',
     (isset($postData['girthWaist']))? (float)$postData['girthWaist'] :' ',
-    (isset($postData['girthHits']))? (float)$postData['girthHits'] :' ',
+    (isset($postData['girthHits']))? (float)$postData['girthHits'] :'',
     (isset($postData['averageStep']))? (int)$postData['averageStep'] :' ',
     (isset($postData['rateTrainings']))? (int)$postData['rateTrainings'] :' ',
     (isset($postData['rateNutrition']))? (int)$postData['rateNutrition'] :' ',
