@@ -1,6 +1,6 @@
 
 var config={
-urlPhpServer: "https://localhost/",
+urlPhpServer: "https://appfizikl.ru/",
 ///appfizikl.ru
 }
 
