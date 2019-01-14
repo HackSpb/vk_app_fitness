@@ -34,9 +34,7 @@ class App extends React.Component {
 			popout: null,
 			activePanel: 'home',
 			fetchedUser: null,
-			config: {
-				urlPhpServer: "https://appfizikl.ru/"
-			},
+			config: window.config,
 			formReg: {
 				sex:0,
 				first_name:' ',
@@ -45,6 +43,8 @@ class App extends React.Component {
         message2user: ['','','']
 			}
 		};
+		//из конфига
+		this.text = window.text
 
 	}
 
@@ -53,6 +53,7 @@ class App extends React.Component {
 		connect.subscribe((e) => {
 			switch (e.detail.type) {
 				case 'VKWebAppGetUserInfoResult':
+					//получение инфы от ВК
 					user=e.detail.data
 					this.setState({ fetchedUser: user ,
             config: window.config,
@@ -64,7 +65,7 @@ class App extends React.Component {
 						id:user.id
 					}});
 
-              this.checkUser();
+					this.checkUser();
 					break;
 				default:
 
@@ -138,7 +139,7 @@ console.log(t,i)*/
 
 				if(resultCheck.length>0){
 					console.log(resultCheck)
-					let mes = 'Заполните поля: ';
+					let mes = this.text.notFilled;
 					mes += resultCheck.reduce(function(sum, current) {
   					if(inputsNames[current]) return sum+ inputsNames[current] +', ' ;
 						else return sum+ current  +', ';
@@ -158,7 +159,7 @@ console.log(t,i)*/
 		        }]}
 		        onClose={ () => this.setState({ popout: null }) }
 		      >
-		        <h2>Hi!</h2>
+		        <h2>{this.text.headAlert}</h2>
 		        <div className="content" dangerouslySetInnerHTML={{__html: text}}></div>
 		      </Alert>
 		    });
@@ -182,7 +183,7 @@ checkUser=()=>{
       else
         this.setState({registered: 0})
     }).catch(error => {
-			this.openDialog ("ошибка связи с сервером")
+			this.openDialog (this.text.servError)
       console.log(error);
   });
 }
@@ -221,7 +222,7 @@ checkUser=()=>{
             this.openDialog(dataJSON['error']);
           }else{
               this.setState({activePanel: 'home',registered: true, afterReg:1, message2user:"Данные записаны. Следите за комментариями от нашей команды =)"})
-              this.openDialog("Данные успешно записаны");
+              this.openDialog(this.text.dataSave);
 							connect.send("VKWebAppScroll", {"top": 1, "speed": 600});
           }
 
@@ -230,7 +231,7 @@ checkUser=()=>{
         })
         .catch(error => {
 					this.setState({popout: null})
-					this.openDialog ("ошибка связи с сервером")
+					this.openDialog (this.text.servError)
           console.log(error);
 
       });
@@ -264,7 +265,7 @@ var Num=this.Num;
 var ChangeSt=this.ChangeSt;
 var ifChecked=this.ifChecked;
 var v,n; // для значений и имен инпутов и радио
-
+var text=this.text
 //установка размеров окна для разных вкладок
 if(this.state.activePanel == 'newuser')
 	connect.send("VKWebAppResizeWindow", {"width": 750, "height": 3700});
@@ -278,10 +279,10 @@ connect.send("VKWebAppResizeWindow", {"width": 750, "height": 800});
 
 <View activePanel={this.state.activePanel} popout={this.state.popout}>
   <Panel id="home" theme="white">
-    <PanelHeader>Физтрансформ</PanelHeader>
+    <PanelHeader>{text.head}</PanelHeader>
 
         <Div><InfoRow title="">
-           Приветствуем тебя в потоке Physical Transfor
+           {text.intro}
           </InfoRow>
 				</Div>
 				{ this.state.message2user ?
@@ -340,10 +341,10 @@ connect.send("VKWebAppResizeWindow", {"width": 750, "height": 800});
 
    </Panel>
 	 <Panel id="everyWeek" theme="white">
-     <PanelHeader>Фитнес</PanelHeader>
+     <PanelHeader>Еженедельный отчет</PanelHeader>
 
          <Div><InfoRow title="">
-            Еженедельный отчет
+            Заполните данные за прошедшую неделю:
            </InfoRow>
  				</Div>
           <FormLayout id="form3">
@@ -365,7 +366,7 @@ connect.send("VKWebAppResizeWindow", {"width": 750, "height": 800});
                  <option value="15">15 неделя</option>
 								 <option value="16">16 неделя</option>
               </Select>
-          <Input type="number" top="Средний вес за неделю (среднее арифмитическое всех взвешиваний за неделю)" name="averageWeight" value={Num($.averageWeight)} step="any" onChange={ChangeSt}/>
+          <Input type="number" top="Средний вес за неделю (среднее арифметическое всех взвешиваний за неделю)" name="averageWeight" value={Num($.averageWeight)} step="any" onChange={ChangeSt}/>
           <Input type="number" top="Минимальный вес за неделю" name="minWeight" value={Num($.minWeight)} step="any" onChange={ChangeSt}/>
           <Input type="number" top="Среднее кол. шагов за неделю" name="averageStep" value={Num($.averageStep)} onChange={ChangeSt}/>
           <Select top="Тренировки (оцените по шкале от 1 до 5, где 1-не тренировались, 5 - активно тренировались)"
