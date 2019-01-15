@@ -247,12 +247,13 @@ checkUser=()=>{
 
 
 	Num($inp) {
-    if(isNaN(Number($inp))){
+    /*if(isNaN(Number($inp))){
       return null;
     }
     else{
       return Number($inp);
-    }
+    }*/
+		if(isNaN($inp)) return '';
 	}
 
 
@@ -366,8 +367,8 @@ connect.send("VKWebAppResizeWindow", {"width": 750, "height": 800});
                  <option value="15">15 неделя</option>
 								 <option value="16">16 неделя</option>
               </Select>
-          <Input type="number" top="Средний вес за неделю (среднее арифметическое всех взвешиваний за неделю)" name="averageWeight" value={Num($.averageWeight)} step="any" onChange={ChangeSt}/>
-          <Input type="number" top="Минимальный вес за неделю" name="minWeight" value={Num($.minWeight)} step="any" onChange={ChangeSt}/>
+          <Input type="number" top="Средний вес за неделю (среднее арифметическое всех взвешиваний за неделю)" name="averageWeight" value={Num($.averageWeight)} step="0.1" onChange={ChangeSt}/>
+          <Input type="number" top="Минимальный вес за неделю" name="minWeight" value={Num($.minWeight)} step="0.1" onChange={ChangeSt}/>
           <Input type="number" top="Среднее кол. шагов за неделю" name="averageStep" value={Num($.averageStep)} onChange={ChangeSt}/>
           <Select top="Тренировки (оцените по шкале от 1 до 5, где 1-не тренировались, 5 - активно тренировались)"
                 placeholder="Ваша оценка"  name="rateTrainings"  value={Num($.rateTrainings)}  onChange={ChangeSt}>
@@ -394,10 +395,10 @@ connect.send("VKWebAppResizeWindow", {"width": 750, "height": 800});
                 <option value="4">4</option>
                 <option value="5">5</option>
               </Select>
-					<Input top="Обхват шеи, см"  type="number" name="girthNeck" value={Num($.girthNeck)} step="any" onChange={ChangeSt}  />
-					<Input top="Обхват талии, см"  type="number" name="girthWaist" value={Num($.girthWaist)} step="any" onChange={ChangeSt} />
+					<Input top="Обхват шеи, см"  type="number" name="girthNeck" value={Num($.girthNeck)} step="0.1" onChange={ChangeSt}  />
+					<Input top="Обхват талии, см"  type="number" name="girthWaist" value={Num($.girthWaist)} step="0.1" onChange={ChangeSt} />
 					{this.state.formReg.sex=='1' ?
-				            <Input  top="Обхват бедер, см"  type="number" name="girthHits" value={Num($.girthHits)} step="any" onChange={ChangeSt} />
+				            <Input  top="Обхват бедер, см"  type="number" name="girthHits" value={Num($.girthHits)} step="0.1" onChange={ChangeSt} />
 				 	:''}
           { this.state.formReg.sex=='1' ?
       		          <Checkbox name="menses" value="да" checked={$.menses} onChange={ChangeSt} step="any">Были ли месячные на этой неделе? </Checkbox>
@@ -439,8 +440,8 @@ connect.send("VKWebAppResizeWindow", {"width": 750, "height": 800});
       </Select>
        <Slider step={1} min={16} max={70} top={"Полных лет " + (($.old)?$.old:"") } name="old" value={$.old}  onChange={val =>{$['old']=val;this.setState({formReg: $})}} />
 
-       <Input top="Рост" type="number" name="height" value={Num($.height)} onChange={ChangeSt} step="any" />
-       <Input top="Вес" type="number"  name="weight" value={Num($.weight)}  step="any" onChange={ChangeSt}/>
+       <Input top="Рост" type="number" name="height" value={Num($.height)} onChange={ChangeSt} step="0.1" />
+       <Input top="Вес" type="number"  name="weight" value={Num($.weight)}  step="0.1" onChange={ChangeSt}/>
 
 	<Input top="Вид спорта (напр. кроссфит, футбол, танцы и т.д.)" name="sport"   value={$.sport} onChange={ChangeSt}/>
 	<Input top="Количество дней с тренировками (в неделю)" name="dayssport" value={$.dayssport} onChange={ChangeSt} />
